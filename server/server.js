@@ -22,7 +22,7 @@ app.get("/item/:id", (req, res, next) => {
       })
       .catch(err => {
         console.log(err);
-        res.send(500);
+        res.status(500).send(err);
       });
   }
 });
