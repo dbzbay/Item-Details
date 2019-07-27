@@ -1,83 +1,49 @@
-const webpack = require("webpack");
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+var path = require('path');
+var SRC_DIR = path.join(__dirname, '/client/src');
+var DIST_DIR = path.join(__dirname, '/client/dist');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-  devServer: {
-    contentBase: path.join(__dirname, "dist"),
-    compress: true,
-    port: 9000,
-    historyApiFallback: true, //navigation
-    proxy: [
-      {
-        context: () => true,
-        target: "http://localhost:3002",
-        secure: false
-      }
-    ]
-  },
-
-  devtool: "cheap-eval-source-map", //fast build, super fast rebuilds
-  performance: {
-    maxEntrypointSize: 10000,
-    maxAssetSize: 10000,
-    hints: false
-  },
-
-  entry: {
-    index: "./client/index.js" //entry point
-  },
-
+  entry: `${SRC_DIR}/index.jsx`,
   output: {
-    path: path.resolve(__dirname, "dist"), //output
-    filename: "bundle.js",
-    chunkFilename: "[id][hash].js",
-    publicPath: "/"
+    filename: 'product_main_bundle.js',
+    path: DIST_DIR
   },
-  module: {
-    rules: [
+  // devtool: 'source-map',
+  module : {
+    rules : [
       {
-        test: /\.(js|jsx)$/,
-        exclude: /(node_modules|bower_components)/,
-        use: ["babel-loader"]
+        test : /\.jsx?/,
+        include : SRC_DIR,
+        loader : 'babel-loader',      
+        query: {
+          presets: ['@babel/preset-react', '@babel/preset-env', 'minify'],
+          plugins: ["babel-plugin-styled-components"]
+        },
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
-      },
-      {
-        test: /\.(html)$/,
-        use: {
-          loader: "html-loader",
-          options: {
-            attrs: [":data-src"],
-            minimize: true
-          }
-        }
-      },
-      {
-        test: /\.(png|jpg|gif|jpeg|ttf)$/,
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
             options: {
-              name: "[path][name].[ext]"
+              name: '[name].[ext]',
+              outputPath: 'fonts/'
             }
           }
         ]
       }
     ]
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "James's House of Bundles",
-      template: __dirname + "/client/index.html", //create index.html with js script
-      inject: "body",
-      filename: "index.html"
-    }),
-    new UglifyJsPlugin({ sourceMap: true }) //smash everything
-  ],
-  mode: "production"
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          output: {
+            comments: false,
+          },
+        },
+      }),
+    ],
+  }
 };

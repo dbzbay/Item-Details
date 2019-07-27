@@ -1,0 +1,21 @@
+language: node_js
+
+node_js: 
+  - "stable"
+
+services: 
+  docker
+
+env:
+  - DOCKER_COMPOSE_
+
+before_script:
+  - sudo service mysql stop
+  - sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - docker-compose up -d
+  - createdb dbzbay
+  - psql -f init.sql dbzbay
+
+cache:
+  directories
+  - "node_modules"

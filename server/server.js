@@ -1,39 +1,34 @@
+require('dotenv').config()
 const express = require("express");
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
-const {Item} = require('../database/index.js');
-const mongoose = require("mongoose");
 const cors = require('cors');
 var compression = require('compression');
-require('dotenv').config();
+const Product = require('../database/index');
 
-mongoose.connect(`mongodb+srv://${process.env.mongo_username}:${process.env.password}@zbay-tvguq.mongodb.net/Zbay?retryWrites=true&w=majority`, {useNewUrlParser: true});
-
-const port = process.env.PORT || 3002;
-const host = process.env.HOST || '0.0.0.0';
-
-app.use(express.static("dist"));
-app.use(
-  bodyParser.json({
-    strict: false
-  })
-);
+// app.use(express.static("dist"));
+app.use(express.json());
 app.use(cors());
-app.use(compression());
+// app.use(compression());
 
 app.get("/item/:id", (req, res, next) => {
-  Item.findOne({ID : req.params.id})
-    .exec()
-    .then(doc => {
-      res.send(doc);
-    })
-    .catch(err => {
-      console.log(err);
-      res.send(500);
-    });
+  const id = Number(req.params.id)
+  if (isNaN(id)) next();
+  else {
+    return Product.get(id)
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        console.log(err);
+        res.send(500);
+      });
+  }
 });
 
-app.listen(port, host, () => {
-  console.log(`The shenanigans have started on aisle ${port}`);
-});
+app.get('/*', (req, res) => {
+  res.status(404).send({message: 'Can\'t find that, sorry.'})
+})
+
+module.exports = app;

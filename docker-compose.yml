@@ -1,0 +1,32 @@
+version: "3.7"
+services: 
+  db:
+    image: postgres
+    environment:
+      - PGUSER
+      - PGPASSWORD
+      - PGPORT
+      - PGDATABASE
+    volumes:
+      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+      - /var/run/postgresql:/var/run/postgresql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - '5309:5432'
+  web:
+    build: .
+    image: zonagilreath/dbzbay
+    depends_on:
+      - db
+    environment:
+      - PGHOST=db
+      - PGUSER
+      - PGPASSWORD
+      - PGPORT
+      - PGDATABASE
+    ports:
+      - "80:5000"
+    command: npm start
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node-modules
