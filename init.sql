@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS products (
     ID SERIAL PRIMARY KEY,
     Name TEXT NOT NULL,
-    Price numeric(10, 2) NOT NULL,
+    Price FLOAT NOT NULL,
     Image TEXT NOT NULL,
     Seller_Name TEXT NOT NULL,
     Seller_Score INT NOT NULL,
