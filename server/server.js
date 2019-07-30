@@ -1,10 +1,10 @@
-require('dotenv').config()
+// require('dotenv').config()
 const express = require("express");
 // const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 const cors = require('cors');
-var compression = require('compression');
+// var compression = require('compression');
 const Product = require('../database/index');
 
 // app.use(express.static("dist"));
@@ -25,6 +25,18 @@ app.get("/item/:id", (req, res, next) => {
         res.send(500);
       });
   }
+});
+
+app.get("/item/random", (req, res, next) => {
+  const id = String(Math.floor(Math.random() * 10000000)).padStart(8, '0');
+  return Product.get(id)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      console.log(err);
+      res.send(500);
+    });
 });
 
 app.get('/*', (req, res) => {

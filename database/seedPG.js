@@ -6,9 +6,8 @@ const pool = new Pool({max: 50});
 
 (async function() {
     let client = await pool.connect();
-    await client.query('DROP TABLE IF EXISTS products;');
     await client.query(`
-      CREATE TABLE products (
+      CREATE TABLE IF NOT EXISTS products (
       ID SERIAL PRIMARY KEY,
       Name TEXT NOT NULL,
       Price numeric(10, 2) NOT NULL,
