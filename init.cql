@@ -1,5 +1,4 @@
 CREATE TABLE IF NOT EXISTS dbzbay.products (
-    uid timeuuid,
     ID INT,
     Name TEXT,
     Price DECIMAL,
@@ -9,10 +8,9 @@ CREATE TABLE IF NOT EXISTS dbzbay.products (
     Seller_Feedback DECIMAL,
     Condition TEXT,
     Category TEXT,
-    PRIMARY KEY (uid)
+    PRIMARY KEY (ID, Name)
 );
 INSERT INTO products(
-    uid,
     ID,
     Name,
     Price,
@@ -23,7 +21,6 @@ INSERT INTO products(
     Condition,
     Category
 ) VALUES (
-    now(),
     1,
     'Fantastic Frozen Salad',
     5364.87,
@@ -35,7 +32,6 @@ INSERT INTO products(
     'Garden'
 );
 INSERT INTO products(
-    uid,
     ID,
     Name,
     Price,
@@ -46,7 +42,6 @@ INSERT INTO products(
     Condition,
     Category
 ) VALUES (
-    now(),
     2,
     'Good Frozen Salad',
     534.87,

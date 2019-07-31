@@ -1,14 +1,15 @@
+require('dotenv').config()
 const cassandra = require('cassandra-driver');
+const dbNodes = process.env.CNODES.split(' ');
 const faker = require('faker');
-// const assert = require('assert');
 
-const loadBalancingPolicy = new cassandra.policies.loadBalancing.RoundRobinPolicy ();
-
-const client = new cassandra.Client({ 
-  contactPoints: ['172.17.0.2'],
-  keyspace: 'dbzbay',
-  policies : { loadBalancing : loadBalancingPolicy }
-});
+ const loadBalancingPolicy = new cassandra.policies.loadBalancing.RoundRobinPolicy ();
+ 
+ const client = new cassandra.Client({ 
+   contactPoints: dbNodes,
+   keyspace: 'dbzbay',
+   policies : { loadBalancing : loadBalancingPolicy }
+ });
 
 (async function() {
   for (let i = 0; i < 5000; i++){
@@ -27,7 +28,6 @@ const client = new cassandra.Client({
       ])
     }
     let queryString = `INSERT INTO products(
-        uid,
         ID,
         Name,
         Price,
@@ -38,7 +38,7 @@ const client = new cassandra.Client({
         Condition,
         Category
       )
-      VALUES(now(), ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const result = await cassandra.concurrent.executeConcurrent(client, queryString, values);
   }
   client.shutdown();

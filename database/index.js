@@ -1,10 +1,11 @@
+require('dotenv').config()
 const cassandra = require('cassandra-driver');
-const assert = require('assert');
+const dbNodes = process.env.CNODES.split(' ');
 
 const loadBalancingPolicy = new cassandra.policies.loadBalancing.RoundRobinPolicy ();
 
 const client = new cassandra.Client({ 
-  contactPoints: ['172.17.0.2'],
+  contactPoints: dbNodes,
   keyspace: 'dbzbay',
   policies : { loadBalancing : loadBalancingPolicy }
 });
