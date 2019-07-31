@@ -9,7 +9,6 @@ describe('the /item/:id endpoint', () => {
   // });
   // 
   afterAll(async done =>{
-    await Product.pool.end();
     done();
   });
 

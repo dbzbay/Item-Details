@@ -10,8 +10,8 @@ const client = new cassandra.Client({
   policies : { loadBalancing : loadBalancingPolicy }
 });
 
-client.connect(function (err) {
-  console.log('connected!');
-  assert.ifError(err);
-  client.shutdown(() => console.log('shut down'));
-});
+module.exports.get = async (id) => {
+  const query = 'SELECT * FROM products WHERE id = ?';
+  return client.execute(query, [ id ], { prepare: true })
+    .then(data => data.rows[0])
+}
