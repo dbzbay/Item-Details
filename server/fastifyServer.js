@@ -1,6 +1,7 @@
 const fastify = require('fastify')()
 const Product = require('../database/index');
 const path = require('path')
+const port = process.env.PORT || 3000;
 
 fastify.register(require('fastify-static'), {
   root: path.join(__dirname, '../dist'),
