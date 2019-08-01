@@ -40,7 +40,7 @@ describe('the /item/:id endpoint', () => {
   test('handles a high volume of valid requests', done => {
     const range = [...Array(1000).keys()];
     return Promise.all(
-      range.map(i => request(app).get(`/item/` + (i + 1)))
+      range.map(i => request(app).get(`/item/random`))
       )
       .then(resArray => {
         expect(resArray.length).toBe(1000);
