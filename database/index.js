@@ -1,7 +1,7 @@
 require('dotenv').config()
 const cassandra = require('cassandra-driver');
- const dbNodes = process.env.CNODES.split(' ');
- // const dbNodes = process.env.AWSCNODES.split(' ');
+ // const dbNodes = process.env.CNODES.split(' ');
+const dbNodes = process.env.AWSCNODES.split(' ');
 
 const loadBalancingPolicy = new cassandra.policies.loadBalancing.RoundRobinPolicy ();
 
