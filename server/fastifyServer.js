@@ -1,7 +1,10 @@
-const fastify = require('fastify')()
+require('dotenv').config()
+const fastify = require('fastify')({
+  logger: true
+})
 const Product = require('../database/index');
 const path = require('path')
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3002;
 
 fastify.register(require('fastify-static'), {
   root: path.join(__dirname, '../dist'),
@@ -35,7 +38,7 @@ fastify.get("/item/:id", (req, res, next) => {
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen(3000)
+    await fastify.listen(port)
     fastify.log.info(`server listening on ${fastify.server.address().port}`)
   } catch (err) {
     fastify.log.error(err)
