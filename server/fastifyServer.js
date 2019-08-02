@@ -38,7 +38,7 @@ fastify.get("/item/:id", (req, res, next) => {
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen(port)
+    await fastify.listen(port, '0.0.0.0')
     fastify.log.info(`server listening on ${fastify.server.address().port}`)
   } catch (err) {
     fastify.log.error(err)
