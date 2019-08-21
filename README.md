@@ -1,6 +1,6 @@
 # Ecommerce System Design 
 ## Author
-   * Zona Gilreath - https://github.com/zonagilreath
+Zona Gilreath - https://github.com/zonagilreath
 ## You want scale? Alright let's scale 
 The purpose of this project was to take an ecommerce backend service and proxy server which was originally only serving 100 resources, and supporting only a few dozen requests per second, and scale it both horizontally and vertically to serve at least 10,000,000 database resources, and over 100 requests per second. Using a combination of Apache’s Cassandra distributed database management system, a highly tuned Nginx proxy server running on AWS’s free ECS t2.micro server for static file service and load-balancing, and a round robin setup of four application servers, I was able to easily reach the 10,000,000 resources served, and managed to squeeze over 15000 rps out of the static file server and 3600 arbitrary (ie uncached, changing with every request) data/API rps. 
 
