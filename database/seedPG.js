@@ -1,30 +1,31 @@
 require('dotenv').config()
-const { Pool, Client } = require('pg');
+const cassandra = require('cassandra-driver');
+// const dbNodes = process.env.CNODES.split(' ');
+const dbNodes = process.env.AWSCNODES.split(' ');
 const faker = require('faker');
 
-const pool = new Pool({max: 50});
+const loadBalancingPolicy = new cassandra.policies.loadBalancing.RoundRobinPolicy ();
+// var authProvider = new cassandra.auth.PlainTextAuthProvider('cassandra', 'cassandra'); 
+ const client = new cassandra.Client({ 
+   contactPoints: dbNodes.slice(0, 2),
+   keyspace: 'dbzbay',
+   policies : { loadBalancing : loadBalancingPolicy}
+ });
 
-(async function() {
-    let client = await pool.connect();
-    await client.query('DROP TABLE IF EXISTS products;');
-    await client.query(`
-      CREATE TABLE products (
-      ID SERIAL PRIMARY KEY,
-      Name TEXT NOT NULL,
-      Price numeric(10, 2) NOT NULL,
-      Image TEXT NOT NULL,
-      Seller_Name TEXT NOT NULL,
-      Seller_Score INT NOT NULL,
-      Seller_Feedback numeric(4,1) NOT NULL,
-      Condition TEXT NOT NULL,
-      Category TEXT NOT NULL
-      );`);
-    client.release();
-  for (let i = 0; i < 10000; i++){
-    const client = await pool.connect();
+// client.connect((err)=>{
+//   if(err) console.log(err);
+//   console.log('connected!');
+//   client.shutdown();
+// })
+client.connect(async ()=>{
+  let today = new Date();
+  let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  console.log('start', time);
+  for (let i = 0; i < 5000; i++){
     const values = [];
-    for (let i = 0; i < 1000; i++){
-      values.push(
+    for (let j = 0; j < 2000; j++){
+      values.push([
+        (j + (i * 2000) + 1),
         faker.commerce.productName(),
         faker.finance.amount(0, 10000, 2),
         faker.image.imageUrl(),
@@ -33,9 +34,10 @@ const pool = new Pool({max: 50});
         faker.finance.amount(0, 100, 1),
         faker.lorem.word(),
         faker.commerce.department()
-      )
+      ])
     }
     let queryString = `INSERT INTO products(
+        ID,
         Name,
         Price,
         Image,
@@ -45,16 +47,13 @@ const pool = new Pool({max: 50});
         Condition,
         Category
       )
-      VALUES`;
-    for (let i = 0; i < 1000; i++){
-      if (i > 0) queryString += ',';
-      queryString += `($${i * 8 + 1}, $${i * 8 + 2}, $${i * 8 + 3}, $${i * 8 + 4}, $${i * 8 + 5}, $${i * 8 + 6}, $${i * 8 + 7}, $${i * 8 + 8})`
-    }
-    queryString += ';'
-    client.query(queryString, values)
-    .catch(e => console.error(e.stack))
-    .then(()=> client.release());
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    await cassandra.concurrent.executeConcurrent(client, queryString, values, { concurrencyLevel: 4000 });
   }
-  pool.end();
-})()
+  client.shutdown(()=> {
+    today = new Date();
+    time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    console.log('finished', time);
+  });
+})
 

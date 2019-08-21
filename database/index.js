@@ -1,21 +1,21 @@
-require('dotenv').config();
+require('dotenv').config()
+const cassandra = require('cassandra-driver');
+ // const dbNodes = process.env.CNODES.split(' ');
+const dbNodes = process.env.AWSCNODES.split(' ');
 
-const { Pool, Client } = require('pg');
+const loadBalancingPolicy = new cassandra.policies.loadBalancing.RoundRobinPolicy ();
 
-const pool = new Pool({max: 50});
+const client = new cassandra.Client({ 
+  contactPoints: dbNodes,
+  // contactPoints: [dbNodes[0]],
+  keyspace: 'dbzbay',
+  policies : { loadBalancing : loadBalancingPolicy }
+});
 
-module.exports.pool = pool;
 
-module.exports.get = async function(id){
-  let client = await pool.connect();
-  return client.query('select * from products where id=$1', [Number(id)])
-  .then(res => {
-    client.release();
-    return res.rows[0]
-  })
-  .catch(err => {
-    console.log(err);
-    console.error(err)
-  })
+module.exports.get = async (id) => {
+  await client.connect();
+  const query = 'SELECT * FROM products WHERE id = ?';
+  return client.execute(query, [ id ], { prepare: true })
+    .then(data => data.rows[0])
 }
-
